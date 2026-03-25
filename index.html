@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>A.S.A.P. System</title>
+    <title>A.S.A.P. Billing System</title>
     <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-<main class="page" aria-label="Documento">
+<main class="page" aria-label="Documento de Facturación">
     <div class="mode-switcher no-print">
         <button type="button" id="BtnToggleMode" class="btn-mode">Cambiar a MODO ESTIMACIÓN</button>
     </div>
@@ -20,7 +20,7 @@
         <section class="headline">
             <div class="invoice-title" id="MainTitle">INVOICE</div>
             <div class="vendor">
-                <div class="vendor-name">Enrique Arias</div>
+                <div class="vendor-name">A.S.A.P. Home Maintenance</div>
                 <div class="vendor-lines">
                     <div>28 Ocean Pkwy Ave</div>
                     <div>Easthampton NY 11937</div>
@@ -44,7 +44,7 @@
                 <input class="line-input" id="BillToLine3Input" value="United States"/>
                 <div class="billto-contact">
                     <input class="line-input" id="BillToPhoneInput" placeholder="Teléfono"/>
-                    <input class="line-input" id="BillToEmailInput" placeholder="Correo"/>
+                    <input class="line-input" id="BillToEmailInput" placeholder="Correo electrónico"/>
                 </div>
             </div>
         </section>
@@ -61,6 +61,10 @@
                 <div class="meta-row">
                     <div class="meta-key" id="LblDue">Payment Due:</div>
                     <div class="meta-val"><input class="meta-input" id="PaymentDueInput" type="date"/></div>
+                </div>
+                <div class="meta-row no-print" id="RowPercentInput">
+                    <div class="meta-key">Advance %:</div>
+                    <div class="meta-val"><input class="meta-input" id="AdvancePercentInput" type="number" value="100" min="0" max="100"/></div>
                 </div>
                 <div class="meta-highlight">
                     <div class="meta-key"><span id="LblAmountTop">Amount Due</span> (USD):</div>
@@ -90,12 +94,8 @@
 
         <section class="editor no-print" id="Editor" style="display:none">
             <h3>Gestionar Ítem</h3>
-            <div class="field">
-                <input class="input" id="ItemTitle" placeholder="Título del trabajo"/>
-            </div>
-            <div class="field">
-                <textarea class="textarea" id="ItemDesc" placeholder="Descripción detallada..."></textarea>
-            </div>
+            <div class="field"><input class="input" id="ItemTitle" placeholder="Título del ítem"/></div>
+            <div class="field"><textarea class="textarea" id="ItemDesc" placeholder="Descripción detallada..."></textarea></div>
             <div class="editor-actions">
                 <button type="button" id="BtnCancel">Cancelar</button>
                 <button type="button" id="BtnFinishDesc">Finalizar</button>
@@ -111,7 +111,7 @@
                     <div class="tot-val" id="Total">$0.00</div>
                 </div>
                 <div class="tot-row" id="RowAdvance">
-                    <div class="tot-key">Advance (50%):</div>
+                    <div class="tot-key">Advance (<span id="ValPercentLabel">100</span>%):</div>
                     <div class="tot-val" id="ValAdvance">$0.00</div>
                 </div>
                 <div class="tot-row tot-strong">
