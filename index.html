@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>A.S.A.P. Billing System</title>
     <link rel="stylesheet" href="styles.css"/>
-</head>
+    </head>
 <body>
 <main class="page" aria-label="Documento de Facturación">
-    <div class="mode-switcher no-print">
-        <button type="button" id="BtnToggleMode" class="btn-mode">Cambiar a MODO ESTIMACIÓN</button>
-    </div>
 
+    <div class="mode-switcher no-print">
+        <button type="button" id="BtnToggleMode" class="btn-mode">CAMBIAR A MODO ESTIMACIÓN</button>
+    </div>
     <header class="top">
         <section class="brand">
             <div class="signature">A.S.A.P. Home Maintenance</div>
@@ -32,7 +32,7 @@
                 </div>
             </div>
         </section>
-    </header>
+        </header>
 
     <section class="mid">
         <section class="billto">
@@ -72,7 +72,7 @@
                 </div>
             </div>
         </section>
-    </section>
+        </section>
 
     <section class="table-wrap">
         <table class="items">
@@ -94,15 +94,30 @@
 
         <section class="editor no-print" id="Editor" style="display:none">
             <h3>Gestionar Ítem</h3>
-            <div class="field"><input class="input" id="ItemTitle" placeholder="Título del ítem"/></div>
-            <div class="field"><textarea class="textarea" id="ItemDesc" placeholder="Descripción detallada..."></textarea></div>
+            <div class="editor-grid">
+                <div class="field field-main">
+                    <label class="field-label" for="ItemTitle">Título</label>
+                    <input class="input" id="ItemTitle" placeholder="Ej. Instalación de drywall"/>
+                </div>
+                <div class="field field-side">
+                    <label class="field-label" for="ItemQty">Cantidad</label>
+                    <input class="input input-compact" id="ItemQty" type="number" min="0" step="any" placeholder="1"/>
+                </div>
+                <div class="field field-main">
+                    <label class="field-label" for="ItemDesc">Detalles</label>
+                    <textarea class="textarea" id="ItemDesc" placeholder="Describe materiales, alcance o notas importantes..."></textarea>
+                </div>
+                <div class="field field-side">
+                    <label class="field-label" for="ItemUnitPrice">Valor unitario</label>
+                    <input class="input input-compact" id="ItemUnitPrice" type="number" min="0" step="any" placeholder="0.00"/>
+                </div>
+            </div>
             <div class="editor-actions">
                 <button type="button" id="BtnCancel">Cancelar</button>
                 <button type="button" id="BtnFinishDesc">Finalizar</button>
             </div>
         </section>
     </section>
-
     <footer class="bottom">
         <section class="totals">
             <div class="totals-box">
@@ -111,7 +126,10 @@
                     <div class="tot-val" id="Total">$0.00</div>
                 </div>
                 <div class="tot-row" id="RowAdvance">
-                    <div class="tot-key">Advance (<span id="ValPercentLabel">100</span>%):</div>
+                    <div class="tot-label-group">
+                        <span id="LblAdvanceType">Advance</span> 
+                        (<span id="ValPercentLabel">100</span>%):
+                    </div>
                     <div class="tot-val" id="ValAdvance">$0.00</div>
                 </div>
                 <div class="tot-row tot-strong">
@@ -121,7 +139,7 @@
             </div>
         </section>
     </footer>
-</main>
+    </main>
 <script src="app.js"></script>
 </body>
 </html>
