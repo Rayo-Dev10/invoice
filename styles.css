@@ -351,7 +351,10 @@ button:hover {
 }
 
 @media print {
-    @page { margin: 0; size: auto; }
+    @page {
+        size: letter portrait;
+        margin: 0.35in;
+    }
 
     body { background: white !important; }
 
@@ -359,9 +362,47 @@ button:hover {
         margin: 0;
         box-shadow: none;
         width: 100%;
-        padding: 0.5in;
+        max-width: none;
+        padding: 0;
         min-height: auto !important;
         height: auto !important;
+    }
+
+    .top {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
+    .mid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 340px !important;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .bottom {
+        display: flex !important;
+        justify-content: flex-end;
+    }
+
+    .table-wrap,
+    .billto,
+    .meta,
+    .totals-box,
+    tr,
+    td {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tfoot {
+        display: table-footer-group;
     }
 
     .no-print,
@@ -387,9 +428,18 @@ button:hover {
         background-color: #3c3c3c !important;
         color: #fff !important;
     }
+
+    .card,
+    .meta-highlight,
+    .totals-box,
+    th,
+    .btn-mode {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 }
 
-@media (max-width: 860px) {
+@media screen and (max-width: 860px) {
     .page {
         width: auto;
         margin: 0;
