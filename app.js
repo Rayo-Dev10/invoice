@@ -11,29 +11,50 @@
         return Number.isFinite(n) ? n : NaN;
     };
 
-    const todayISO = () => new Date().toISOString().split('T')[0];
+    const todayISO = () => new Date().toISOString().split("T")[0];
 
     const money = n => {
         return new Intl.NumberFormat("en-US", {
-            style: "currency", currency: "USD", minimumFractionDigits: 2
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2
         }).format(Number(n || 0));
     };
 
     const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
     }[m]));
 
     const totals = () => Items.reduce((a, it) => a + (it.qty * it.unitPrice), 0);
 
+    const validateAndRender = () => {
+        const input = $("AdvancePercentInput");
+        let val = parseNum(input.value);
+
+        if (isNaN(val) || val < 0) val = 0;
+        if (val > 100) val = 100;
+
+        input.value = val;
+        render();
+    };
+
     const toggleMode = () => {
         isEstimate = !isEstimate;
-        $("BtnToggleMode").textContent = isEstimate ? "CAMBIAR A MODO FACTURA" : "CAMBIAR A MODO ESTIMACIÓN";
+        $("BtnToggleMode").textContent = isEstimate
+            ? "CAMBIAR A MODO FACTURA"
+            : "CAMBIAR A MODO ESTIMACIÓN";
         render();
     };
 
     const render = () => {
         const tbody = $("ItemsBody");
-        tbody.innerHTML = Items.length ? "" : '<tr><td class="empty" colspan="4">Sin ítems agregados.</td></tr>';
+        tbody.innerHTML = Items.length
+            ? ""
+            : '<tr><td class="empty" colspan="4">Sin ítems agregados.</td></tr>';
 
         Items.forEach((it, i) => {
             const tr = document.createElement("tr");
@@ -42,8 +63,8 @@
                     <div class="item-title-row">
                         <div class="item-title">${esc(it.title)}</div>
                         <div class="item-actions no-print">
-                            <button type="button" class="edit-btn" data-edit="${i}">Editar</button>
-                            <button type="button" class="delete-btn" data-del="${i}">🗑️</button>
+                            <button type="button" onclick="window._edit(${i})">Editar</button>
+                            <button type="button" onclick="window._del(${i})">Eliminar</button>
                         </div>
                     </div>
                     <div class="item-desc">${esc(it.desc).replace(/\n/g, "<br>")}</div>
@@ -56,10 +77,7 @@
         });
 
         const t = totals();
-        
-        // CAPTURA DE PORCENTAJE MANUAL
-        const pctInput = parseNum($("AdvancePercentInput").value);
-        const pct = isNaN(pctInput) ? 100 : pctInput;
+        const pct = parseNum($("AdvancePercentInput").value) || 0;
         const advance = t * (pct / 100);
 
         if (isEstimate) {
@@ -67,72 +85,78 @@
             $("LblDocNumber").textContent = "Estimate Number:";
             $("LblDate").textContent = "Estimate Date:";
             $("LblDue").textContent = "Valid Until:";
-            $("LblAmountTop").textContent = "Estimate Total";
+            $("LblAdvanceType").textContent = "Required Deposit";
+            $("LblAmountTop").textContent = (pct === 100) ? "Estimate Total" : "Required Deposit";
             $("LblAmountBottom").textContent = "Estimate Total:";
-            if($("RowAdvance")) $("RowAdvance").style.display = "none";
-            if($("RowPercentInput")) $("RowPercentInput").style.display = "none";
-            $("AmountDueTop").textContent = money(t);
+            if ($("RowAdvance")) $("RowAdvance").style.display = (pct === 100 || pct === 0) ? "none" : "flex";
+            $("AmountDueTop").textContent = money(advance);
             $("AmountDueBottom").textContent = money(t);
         } else {
             $("MainTitle").textContent = "INVOICE";
             $("LblDocNumber").textContent = "Invoice Number:";
             $("LblDate").textContent = "Invoice Date:";
             $("LblDue").textContent = "Payment Due:";
+            $("LblAdvanceType").textContent = "Advance";
             $("LblAmountTop").textContent = "Amount Due";
             $("LblAmountBottom").textContent = (pct === 100) ? "Total Amount:" : "Balance Due:";
-            
-            if($("RowPercentInput")) $("RowPercentInput").style.display = "flex";
-            if($("RowAdvance")) {
-                // Solo mostrar la fila de anticipo si es menor al 100%
-                $("RowAdvance").style.display = (pct === 100) ? "none" : "flex";
-                $("ValPercentLabel").textContent = pct;
-                $("ValAdvance").textContent = money(advance);
-            }
+            if ($("RowAdvance")) $("RowAdvance").style.display = (pct === 100 || pct === 0) ? "none" : "flex";
             $("AmountDueTop").textContent = money(advance);
             $("AmountDueBottom").textContent = money(advance);
         }
+
+        $("ValPercentLabel").textContent = pct;
+        $("ValAdvance").textContent = money(advance);
         $("Total").textContent = money(t);
     };
 
-    // EVENTOS
-    $("AdvancePercentInput").oninput = render; // Actualización en tiempo real
-    
+    const resetEditor = () => {
+        $("ItemTitle").value = "";
+        $("ItemDesc").value = "";
+        $("ItemQty").value = "1";
+        $("ItemUnitPrice").value = "";
+    };
+
+    window._edit = i => {
+        EditingIndex = i;
+        $("Editor").style.display = "block";
+        $("ItemTitle").value = Items[i].title;
+        $("ItemDesc").value = Items[i].desc;
+        $("ItemQty").value = Items[i].qty;
+        $("ItemUnitPrice").value = Items[i].unitPrice;
+    };
+
+    window._del = i => {
+        if (confirm("¿Eliminar ítem?")) {
+            Items.splice(i, 1);
+            render();
+        }
+    };
+
     $("BtnAddGuided").onclick = () => {
         EditingIndex = -1;
         $("Editor").style.display = "block";
-        $("ItemTitle").value = ""; $("ItemDesc").value = "";
-        $("ItemTitle").focus();
+        resetEditor();
     };
 
     $("BtnFinishDesc").onclick = () => {
         const title = $("ItemTitle").value.trim();
         const desc = $("ItemDesc").value.trim();
-        if(!title || !desc) return alert("Complete los campos.");
-        const qty = parseNum(prompt("Cantidad:", EditingIndex >= 0 ? Items[EditingIndex].qty : "1"));
-        const unit = parseNum(prompt("Precio Unitario:", EditingIndex >= 0 ? Items[EditingIndex].unitPrice : "0"));
-        if(isNaN(qty) || isNaN(unit)) return alert("Valores numéricos inválidos.");
-        if(EditingIndex >= 0) Items[EditingIndex] = {title, desc, qty, unitPrice: unit};
-        else Items.push({title, desc, qty, unitPrice: unit});
+        const qty = parseNum($("ItemQty").value);
+        const unit = parseNum($("ItemUnitPrice").value);
+
+        if (!title || !desc) return alert("Campos obligatorios.");
+        if (isNaN(qty) || isNaN(unit)) return alert("Valores numéricos inválidos.");
+
+        const nextItem = { title, desc, qty, unitPrice: unit };
+
+        if (EditingIndex >= 0) Items[EditingIndex] = nextItem;
+        else Items.push(nextItem);
+
         $("Editor").style.display = "none";
         render();
     };
 
-    $("ItemsBody").onclick = e => {
-        const edit = e.target.closest("[data-edit]");
-        if(edit) {
-            const i = Number(edit.getAttribute("data-edit"));
-            EditingIndex = i;
-            $("Editor").style.display = "block";
-            $("ItemTitle").value = Items[i].title;
-            $("ItemDesc").value = Items[i].desc;
-        }
-        const del = e.target.closest("[data-del]");
-        if(del && confirm("¿Eliminar ítem?")) {
-            Items.splice(Number(del.getAttribute("data-del")), 1);
-            render();
-        }
-    };
-
+    $("AdvancePercentInput").oninput = validateAndRender;
     $("BtnCancel").onclick = () => $("Editor").style.display = "none";
     $("BtnToggleMode").onclick = toggleMode;
     $("BtnPrint").onclick = () => window.print();
