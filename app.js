@@ -15,9 +15,7 @@
 
     const money = n => {
         return new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-            minimumFractionDigits: 2
+            style: "currency", currency: "USD", minimumFractionDigits: 2
         }).format(Number(n || 0));
     };
 
@@ -29,7 +27,7 @@
 
     const toggleMode = () => {
         isEstimate = !isEstimate;
-        $("BtnToggleMode").textContent = isEstimate ? "MODO FACTURA" : "MODO ESTIMACIÓN";
+        $("BtnToggleMode").textContent = isEstimate ? "CAMBIAR A MODO FACTURA" : "CAMBIAR A MODO ESTIMACIÓN";
         render();
     };
 
@@ -44,8 +42,8 @@
                     <div class="item-title-row">
                         <div class="item-title">${esc(it.title)}</div>
                         <div class="item-actions no-print">
-                            <button type="button" class="edit-btn" onclick="window._edit(${i})">Editar</button>
-                            <button type="button" class="delete-btn" onclick="window._del(${i})">🗑️</button>
+                            <button type="button" class="edit-btn" data-edit="${i}">Editar</button>
+                            <button type="button" class="delete-btn" data-del="${i}">🗑️</button>
                         </div>
                     </div>
                     <div class="item-desc">${esc(it.desc).replace(/\n/g, "<br>")}</div>
@@ -58,7 +56,11 @@
         });
 
         const t = totals();
-        const advance = t * 0.5;
+        
+        // CAPTURA DE PORCENTAJE MANUAL
+        const pctInput = parseNum($("AdvancePercentInput").value);
+        const pct = isNaN(pctInput) ? 100 : pctInput;
+        const advance = t * (pct / 100);
 
         if (isEstimate) {
             $("MainTitle").textContent = "ESTIMATE";
@@ -68,6 +70,7 @@
             $("LblAmountTop").textContent = "Estimate Total";
             $("LblAmountBottom").textContent = "Estimate Total:";
             if($("RowAdvance")) $("RowAdvance").style.display = "none";
+            if($("RowPercentInput")) $("RowPercentInput").style.display = "none";
             $("AmountDueTop").textContent = money(t);
             $("AmountDueBottom").textContent = money(t);
         } else {
@@ -76,9 +79,13 @@
             $("LblDate").textContent = "Invoice Date:";
             $("LblDue").textContent = "Payment Due:";
             $("LblAmountTop").textContent = "Amount Due";
-            $("LblAmountBottom").textContent = "Balance Due:";
+            $("LblAmountBottom").textContent = (pct === 100) ? "Total Amount:" : "Balance Due:";
+            
+            if($("RowPercentInput")) $("RowPercentInput").style.display = "flex";
             if($("RowAdvance")) {
-                $("RowAdvance").style.display = "flex";
+                // Solo mostrar la fila de anticipo si es menor al 100%
+                $("RowAdvance").style.display = (pct === 100) ? "none" : "flex";
+                $("ValPercentLabel").textContent = pct;
                 $("ValAdvance").textContent = money(advance);
             }
             $("AmountDueTop").textContent = money(advance);
@@ -87,20 +94,9 @@
         $("Total").textContent = money(t);
     };
 
-    // Global helpers para botones en strings de render
-    window._edit = i => {
-        const it = Items[i];
-        EditingIndex = i;
-        $("Editor").style.display = "block";
-        $("ItemTitle").value = it.title;
-        $("ItemDesc").value = it.desc;
-        $("ItemTitle").focus();
-    };
-
-    window._del = i => {
-        if(confirm("¿Eliminar este ítem?")) { Items.splice(i, 1); render(); }
-    };
-
+    // EVENTOS
+    $("AdvancePercentInput").oninput = render; // Actualización en tiempo real
+    
     $("BtnAddGuided").onclick = () => {
         EditingIndex = -1;
         $("Editor").style.display = "block";
@@ -112,17 +108,29 @@
         const title = $("ItemTitle").value.trim();
         const desc = $("ItemDesc").value.trim();
         if(!title || !desc) return alert("Complete los campos.");
-
         const qty = parseNum(prompt("Cantidad:", EditingIndex >= 0 ? Items[EditingIndex].qty : "1"));
         const unit = parseNum(prompt("Precio Unitario:", EditingIndex >= 0 ? Items[EditingIndex].unitPrice : "0"));
-
         if(isNaN(qty) || isNaN(unit)) return alert("Valores numéricos inválidos.");
-
         if(EditingIndex >= 0) Items[EditingIndex] = {title, desc, qty, unitPrice: unit};
         else Items.push({title, desc, qty, unitPrice: unit});
-
         $("Editor").style.display = "none";
         render();
+    };
+
+    $("ItemsBody").onclick = e => {
+        const edit = e.target.closest("[data-edit]");
+        if(edit) {
+            const i = Number(edit.getAttribute("data-edit"));
+            EditingIndex = i;
+            $("Editor").style.display = "block";
+            $("ItemTitle").value = Items[i].title;
+            $("ItemDesc").value = Items[i].desc;
+        }
+        const del = e.target.closest("[data-del]");
+        if(del && confirm("¿Eliminar ítem?")) {
+            Items.splice(Number(del.getAttribute("data-del")), 1);
+            render();
+        }
     };
 
     $("BtnCancel").onclick = () => $("Editor").style.display = "none";
@@ -131,6 +139,5 @@
 
     $("InvoiceDateInput").value = todayISO();
     $("PaymentDueInput").value = todayISO();
-
     render();
 })();
