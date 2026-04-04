@@ -2,6 +2,10 @@
     const Items = [];
     let EditingIndex = -1;
     let isEstimate = false;
+    let isPersonal = false;
+
+    const BUSINESS_NAME = "A.S.A.P. Home Maintenance";
+    const PERSONAL_NAME = "Enrique Arias";
 
     const $ = id => document.getElementById(id);
 
@@ -31,12 +35,28 @@
 
     const totals = () => Items.reduce((a, it) => a + (it.qty * it.unitPrice), 0);
 
-    const validateAndRender = () => {
-        const input = $("AdvancePercentInput");
-        let val = parseNum(input.value);
+    const getAdvancePercent = () => {
+        let val = parseNum($("AdvancePercentInput").value);
 
         if (isNaN(val) || val < 0) val = 0;
         if (val > 100) val = 100;
+
+        return val;
+    };
+
+    const syncProfile = () => {
+        const name = isPersonal ? PERSONAL_NAME : BUSINESS_NAME;
+
+        $("BtnToggleProfile").textContent = isPersonal
+            ? "CAMBIAR A EMPRESA"
+            : "CAMBIAR A PERSONAL";
+        $("BrandSignature").textContent = name;
+        $("VendorName").textContent = name;
+    };
+
+    const validateAndRender = () => {
+        const input = $("AdvancePercentInput");
+        const val = getAdvancePercent();
 
         input.value = val;
         render();
@@ -48,6 +68,11 @@
             ? "CAMBIAR A MODO FACTURA"
             : "CAMBIAR A MODO ESTIMACIÓN";
         render();
+    };
+
+    const toggleProfile = () => {
+        isPersonal = !isPersonal;
+        syncProfile();
     };
 
     const render = () => {
@@ -77,7 +102,7 @@
         });
 
         const t = totals();
-        const pct = parseNum($("AdvancePercentInput").value) || 0;
+        const pct = getAdvancePercent();
         const advance = t * (pct / 100);
 
         if (isEstimate) {
@@ -156,12 +181,18 @@
         render();
     };
 
-    $("AdvancePercentInput").oninput = validateAndRender;
+    $("AdvancePercentInput").onfocus = e => {
+        e.target.value = "";
+    };
+    $("AdvancePercentInput").oninput = render;
+    $("AdvancePercentInput").onblur = validateAndRender;
     $("BtnCancel").onclick = () => $("Editor").style.display = "none";
     $("BtnToggleMode").onclick = toggleMode;
+    $("BtnToggleProfile").onclick = toggleProfile;
     $("BtnPrint").onclick = () => window.print();
 
     $("InvoiceDateInput").value = todayISO();
     $("PaymentDueInput").value = todayISO();
+    syncProfile();
     render();
 })();

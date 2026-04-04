@@ -219,7 +219,10 @@ td {
 .no-print { display: block; }
 
 .mode-switcher {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
     margin-bottom: 15px;
 }
 
@@ -231,6 +234,10 @@ td {
     border-radius: 4px;
     font-weight: 800;
     cursor: pointer;
+}
+
+#BtnToggleProfile {
+    background: #1f8f5f;
 }
 
 .controls {
@@ -247,12 +254,36 @@ button {
     border: 1px solid var(--line);
     background: #fff;
     border-radius: 10px;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 }
 
-button:hover {
-    background: #f7fafa;
-    border-color: #cfdfe1;
+button:hover,
+button:focus-visible,
+button:active {
+    transform: scale(1.05);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+}
+
+button:not(.btn-mode):not(#BtnFinishDesc):hover,
+button:not(.btn-mode):not(#BtnFinishDesc):focus-visible,
+button:not(.btn-mode):not(#BtnFinishDesc):active {
+    background: #fff;
+    border-color: var(--line);
+    color: inherit;
+}
+
+.btn-mode:hover,
+.btn-mode:focus-visible,
+.btn-mode:active {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+}
+
+#BtnToggleProfile:hover,
+#BtnToggleProfile:focus-visible,
+#BtnToggleProfile:active {
+    background: #1f8f5f;
 }
 
 .editor {
@@ -346,8 +377,14 @@ button:hover {
 }
 
 #BtnFinishDesc:hover {
-    background: #0c5963;
-    border-color: #0c5963;
+    background: var(--accent-deep);
+    border-color: var(--accent-deep);
+}
+
+#BtnFinishDesc:focus-visible,
+#BtnFinishDesc:active {
+    background: var(--accent-deep);
+    border-color: var(--accent-deep);
 }
 
 @media print {

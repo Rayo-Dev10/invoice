@@ -1,74 +1,93 @@
-🛠️ A.S.A.P. Billing & Estimation System
-Una herramienta web ligera, profesional y eficiente diseñada para la gestión de cobros y presupuestos de A.S.A.P. Home Maintenance. Este sistema permite alternar dinámicamente entre formatos de Factura (Invoice) y Estimación (Estimate), optimizando el flujo de trabajo administrativo.
+# Invoice
 
-🚀 Características Principales
-Modo Dual Dinámico: Cambia entre Factura y Estimación con un solo clic sin perder los datos ingresados.
+Aplicación web estática para crear invoices y estimates listos para imprimir o guardar como PDF. Está pensada para uso rápido, sin dependencias y sin backend.
 
-Lógica Contable Automatizada: * Invoice: Calcula automáticamente un anticipo del 50% (Advance) y muestra el saldo pendiente (Balance Due).
+## Qué hace
 
-Estimate: Muestra el total proyectado al 100% para aprobación del cliente.
+- Alterna entre modo invoice y estimate sin perder los datos cargados.
+- Alterna entre perfil empresa y perfil personal.
+- Permite editar el porcentaje de anticipo o depósito directamente.
+- Calcula totales automáticamente en USD.
+- Permite agregar, editar y eliminar ítems del documento.
+- Oculta controles de edición al imprimir.
+- Funciona abriendo el archivo HTML directamente en el navegador.
 
-Optimización de Impresión (WYSIWYG): * Configuración CSS avanzada para forzar la impresión de gráficos y colores de fondo.
+## Estado actual
 
-Eliminación automática de la segunda hoja en blanco.
+El proyecto refleja este comportamiento real:
 
-Ocultamiento inteligente de controles web (botones, editores) al generar el PDF.
+- Perfil por defecto: empresa.
+- Perfil alternativo: personal, reemplazando A.S.A.P. Home Maintenance por Enrique Arias en las zonas visibles del encabezado.
+- El campo Advance % se vacía al enfocarlo para facilitar la edición y se normaliza entre 0 y 100 al salir del campo.
+- En estimate, el documento muestra total estimado y, si aplica, required deposit.
+- En invoice, el documento usa el porcentaje indicado para calcular el advance y el balance mostrado.
 
-Persistencia de Datos: Los datos del cliente y los ítems se mantienen intactos al alternar modos.
+## Uso rápido
 
-Valores por Defecto Inteligentes: Pre-configurado para operaciones en New York, USA, con moneda forzada en USD.
+1. Abre [index.html](index.html) en tu navegador.
+2. Completa la sección Bill To con los datos del cliente.
+3. Usa Agregar ítem para cargar concepto, detalles, cantidad y valor unitario.
+4. Ajusta el porcentaje en Advance % según el anticipo o depósito deseado.
+5. Alterna entre invoice y estimate según el tipo de documento.
+6. Alterna entre empresa y personal según quién emite el documento.
+7. Usa Imprimir / Guardar PDF para exportarlo.
 
-Gestión de Ítems (CRUD): Interfaz fluida para agregar, editar y eliminar tareas o servicios con descripciones detalladas.
+## Lógica del documento
 
-💻 Tecnologías Utilizadas
-Este proyecto fue construido bajo la filosofía de Zero Dependencies, garantizando velocidad de carga y facilidad de mantenimiento:
+### Invoice
 
-HTML5: Estructura semántica para documentos contables.
+- Título: INVOICE.
+- Campos de cabecera: Invoice Number, Invoice Date y Payment Due.
+- Muestra Advance y Balance Due según el porcentaje indicado.
+- Si el porcentaje es 0 o 100, la fila intermedia del anticipo se oculta.
 
-CSS3: Diseño responsivo con uso de Variables CSS (:root) y directivas @media print personalizadas.
+### Estimate
 
-Vanilla JavaScript (ES6+): Lógica de estado, manipulación del DOM y cálculos financieros precisos.
+- Título: ESTIMATE.
+- Campos de cabecera: Estimate Number, Estimate Date y Valid Until.
+- Si el porcentaje es menor que 100, muestra Required Deposit.
+- El total inferior siempre muestra el Estimate Total.
 
-📖 Cómo Utilizar el Sistema
-Datos del Cliente: Completa la sección "Bill To". Por defecto, el sistema sugiere New York, pero los campos son editables.
+## Estructura del proyecto
 
-Gestión de Servicios:
+- [index.html](index.html): estructura del documento y controles.
+- [styles.css](styles.css): diseño visual, estados de botones y reglas de impresión.
+- [app.js](app.js): estado, cálculos, alternancias y CRUD de ítems.
 
-Haz clic en "Agregar ítem".
+## Tecnologías
 
-Ingresa el título y la descripción.
+- HTML5
+- CSS3
+- JavaScript vanilla
 
-Define la cantidad y el precio unitario mediante los diálogos emergentes.
+## Desarrollo local
 
-Selección de Modo:
+No requiere instalación.
 
-Usa el botón superior para decidir si entregarás una Estimación (válida por tiempo limitado) o una Factura de cobro.
-
-Generación de Documento:
-
-Haz clic en "Imprimir / Guardar PDF".
-
-En la configuración de impresión del navegador, asegúrate de que el destino sea "Guardar como PDF".
-
-⚖️ Lógica de Negocio Aplicada
-Nota Contable: Este sistema implementa una política de recaudo de 50/50. En el modo Factura, el sistema asume que se requiere un abono inicial del 50% para iniciar o finalizar el servicio, facilitando la gestión de flujo de caja para el prestador del servicio.
-
-🛠️ Instalación y Despliegue
-Al ser un proyecto estático, no requiere servidor de backend ni bases de datos complejas:
-
-Clona el repositorio:
-
-Bash
+```bash
 git clone https://github.com/Rayo-Dev10/invoice.git
-Abre el archivo index.html en cualquier navegador moderno.
+cd invoice
+start index.html
+```
 
-(Opcional) Despliega en GitHub Pages para acceso remoto rápido.
+También puedes abrir [index.html](index.html) manualmente con cualquier navegador moderno.
 
-📝 Roadmap / Futuras Mejoras
-[ ] Implementar localStorage para guardar facturas localmente en el navegador.
+## Ventajas del enfoque actual
 
-[ ] Agregar selector de porcentaje de anticipo (30%, 50%, 100%).
+- Sin dependencias externas.
+- Carga instantánea.
+- Fácil de modificar.
+- Adecuado para uso en escritorio o móvil.
+- Ideal para generar PDFs rápidos sin backend.
 
-[ ] Generación automática de códigos QR para métodos de pago.
+## Mejoras posibles
 
-Desarrollado por Rayo Palatianos Combinando tecnología y procesos contables.
+- Guardado local con localStorage.
+- Plantillas de datos del emisor.
+- Autonumeración de documentos.
+- Duplicado de ítems frecuentes.
+- Campos de dirección y contacto configurables por perfil.
+
+## Autor
+
+Desarrollado por Rayo Palatianos.
